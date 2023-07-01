@@ -1,0 +1,7 @@
+postgres:
+  host: postgresql
+  port: 5432
+  username: postgres
+  dbName:  practice
+  password: password0701
+  sslMode: disable
