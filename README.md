@@ -107,7 +107,6 @@ migrate -path ./schema -database 'postgres://postgresql:password0701@localhost:5
 ```
 
 # For see all data in elasticsearch:
-```
 http://localhost:9200/books/_search?size=100&q=*:*
-```
+
 
