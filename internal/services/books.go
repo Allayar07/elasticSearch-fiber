@@ -10,12 +10,16 @@ import (
 
 type BookService struct {
 	repos    repository.Books
+	cache    repository.Cache
+	kafka    repository.Queue
 	esClient *elasticsearch.Client
 }
 
-func NewBookService(repo repository.Books, client *elasticsearch.Client) *BookService {
+func NewBookService(repo repository.Books, cache repository.Cache, kafka repository.Queue, client *elasticsearch.Client) *BookService {
 	return &BookService{
 		repos:    repo,
+		cache:    cache,
+		kafka:    kafka,
 		esClient: client,
 	}
 }
@@ -28,6 +32,12 @@ func (s *BookService) CreateBook(book models.Book) (int, error) {
 	bookId := strconv.Itoa(id)
 	book.Id = id
 	if err = IndexingToElasticSearch(context.Background(), bookId, book, s.esClient); err != nil {
+		return 0, err
+	}
+	if err = s.cache.Set("model", book); err != nil {
+		return 0, err
+	}
+	if err = s.kafka.PublishTopic("books", book.Name); err != nil {
 		return 0, err
 	}
 	return id, nil
@@ -59,4 +69,8 @@ func (s *BookService) Update(book models.Book) error {
 		return err
 	}
 	return nil
+}
+
+func (s *BookService) GetFormCache(search interface{}) (models.Book, error) {
+	return s.cache.GetForSearch(search)
 }

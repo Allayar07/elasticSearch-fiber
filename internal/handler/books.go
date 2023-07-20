@@ -63,3 +63,14 @@ func (h *Handler) Update(c *fiber.Ctx) error {
 		"message": "OK",
 	})
 }
+
+func (h *Handler) GetBook(c *fiber.Ctx) error {
+	searchInput := c.Query("s")
+
+	book, err := h.service.Books.GetFormCache(searchInput)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(err.Error())
+	}
+
+	return c.Status(fiber.StatusOK).JSON(book)
+}

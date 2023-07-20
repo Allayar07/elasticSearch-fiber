@@ -7,6 +7,8 @@ import (
 	"elasticSearch/internal/services"
 	database "elasticSearch/pkg/db"
 	"elasticSearch/pkg/elasticSearch_client"
+	"elasticSearch/pkg/kafka_producer"
+	"elasticSearch/pkg/redis"
 	"log"
 	"os"
 	"os/signal"
@@ -23,7 +25,22 @@ func InitApp(cfg *configs.Configs) error {
 	if err != nil {
 		return err
 	}
-	repos := repository.NewRepository(db)
+
+	redisClient, err := redis.NewRedisClient(cfg)
+	if err != nil {
+		return err
+	}
+	producerKafka, err := kafka_producer.ProducerQueues()
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		producerKafka.Close()
+		db.Close()
+		_ = redisClient.Close()
+	}()
+	repos := repository.NewRepository(db, redisClient, producerKafka)
 	service := services.NewService(repos, elasticClient)
 	apiHandler := handler.NewHandler(service)
 	app := apiHandler.InitRoutes()

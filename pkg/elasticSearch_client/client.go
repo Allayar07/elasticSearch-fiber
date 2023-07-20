@@ -4,7 +4,7 @@ import "github.com/elastic/go-elasticsearch/v8"
 
 func SetUpElasticSearch() (*elasticsearch.Client, error) {
 	cfg := elasticsearch.Config{
-		Addresses: []string{"http://elasticsearch:9200"}, // Elasticsearch server address
+		Addresses: []string{"http://localhost:9200"}, // Elasticsearch server address
 	}
 	es, err := elasticsearch.NewClient(cfg)
 	if err != nil {

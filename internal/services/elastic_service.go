@@ -47,13 +47,17 @@ func SearchBook(searchInput string, es *elasticsearch.Client) ([]models.Book, er
 	if searchInput != "" {
 		should = append(should, map[string]interface{}{
 			"match": map[string]interface{}{
-				"name": searchInput,
+				"name": map[string]interface{}{
+					"query": searchInput,
+				},
 			},
 		})
 
 		should = append(should, map[string]interface{}{
 			"match": map[string]interface{}{
-				"description": searchInput,
+				"description": map[string]interface{}{
+					"query": searchInput,
+				},
 			},
 		})
 	} else {

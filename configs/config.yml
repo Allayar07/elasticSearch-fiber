@@ -1,7 +1,13 @@
 postgres:
-  host: postgresql
-  port: 5432
+  host: localhost
+  port: 5475
   username: postgres
   dbName:  practice
   password: password0701
   sslMode: disable
+
+redis:
+  host: localhost
+  port: 6390
+  password:
+  db: 5

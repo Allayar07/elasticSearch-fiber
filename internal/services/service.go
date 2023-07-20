@@ -11,6 +11,7 @@ type Books interface {
 	Search(searchInput string) ([]models.Book, error)
 	Delete(ids models.DeleteIds) error
 	Update(book models.Book) error
+	GetFormCache(search interface{}) (models.Book, error)
 }
 
 type Service struct {
@@ -19,6 +20,6 @@ type Service struct {
 
 func NewService(repo *repository.Repository, EsClient *elasticsearch.Client) *Service {
 	return &Service{
-		Books: NewBookService(repo.Books, EsClient),
+		Books: NewBookService(repo.Books, repo.Cache, repo.Queue, EsClient),
 	}
 }
