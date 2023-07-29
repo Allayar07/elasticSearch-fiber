@@ -74,3 +74,11 @@ func (h *Handler) GetBook(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(book)
 }
+
+func (h *Handler) Sync(c *fiber.Ctx) error {
+	if err := h.service.Books.Sync(); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(err.Error())
+	}
+
+	return c.Status(fiber.StatusOK).JSON("synchronized with elastic search")
+}

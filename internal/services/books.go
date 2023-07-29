@@ -74,3 +74,11 @@ func (s *BookService) Update(book models.Book) error {
 func (s *BookService) GetFormCache(search interface{}) (models.Book, error) {
 	return s.cache.GetForSearch(search)
 }
+
+func (s *BookService) Sync() error {
+	books, err := s.repos.GetForSync()
+	if err != nil {
+		return err
+	}
+	return SyncWithDB(books, s.esClient)
+}

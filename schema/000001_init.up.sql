@@ -3,5 +3,6 @@ create table books (
     name varchar,
     page_count integer,
     author varchar,
-    author_email varchar
+    author_email varchar,
+    description   varchar[] default '{}'
 );

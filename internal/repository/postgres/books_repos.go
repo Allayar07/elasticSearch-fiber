@@ -78,3 +78,19 @@ func (r *BooksRepo) UpdateBook(book models.Book) error {
 	}
 	return nil
 }
+
+func (r *BooksRepo) GetForSync() (books []models.Book, err error) {
+	var book models.Book
+	query := fmt.Sprintf(`SELECT id, name, page_count, author, author_email, description FROM %s`, "books")
+	rows, err := r.db.Query(context.Background(), query)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		if err = rows.Scan(&book.Id, &book.Name, &book.PageCount, &book.Author, &book.AuthorEmail, &book.Description); err != nil {
+			return nil, err
+		}
+		books = append(books, book)
+	}
+	return books, nil
+}

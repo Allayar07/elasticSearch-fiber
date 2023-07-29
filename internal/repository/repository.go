@@ -14,6 +14,7 @@ type Books interface {
 	Create(book models.Book) (int, error)
 	DeleteBooks(ids models.DeleteIds) error
 	UpdateBook(book models.Book) error
+	GetForSync() (books []models.Book, err error)
 }
 
 type Cache interface {

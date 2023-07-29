@@ -10,6 +10,7 @@ import (
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -42,43 +43,18 @@ func IndexingToElasticSearch(ctx context.Context, id string, book models.Book, e
 }
 
 func SearchBook(searchInput string, es *elasticsearch.Client) ([]models.Book, error) {
-	should := make([]interface{}, 0)
-
-	if searchInput != "" {
-		should = append(should, map[string]interface{}{
-			"match": map[string]interface{}{
-				"name": map[string]interface{}{
-					"query": searchInput,
-				},
-			},
-		})
-
-		should = append(should, map[string]interface{}{
-			"match": map[string]interface{}{
-				"description": map[string]interface{}{
-					"query": searchInput,
-				},
-			},
-		})
-	} else {
-		return nil, errors.New("searchInput can not be empty")
-	}
 	var (
 		query map[string]interface{}
 		buf   bytes.Buffer
 	)
-	if len(should) > 1 {
-		query = map[string]interface{}{
-			"query": map[string]interface{}{
-				"bool": map[string]interface{}{
-					"should": should,
-				},
+	query = map[string]interface{}{
+		"query": map[string]interface{}{
+			"multi_match": map[string]interface{}{
+				"query":     searchInput,
+				"fields":    []string{"name", "description"},
+				"fuzziness": 7,
 			},
-		}
-	} else {
-		query = map[string]interface{}{
-			"query": should[0],
-		}
+		},
 	}
 	if err := json.NewEncoder(&buf).Encode(query); err != nil {
 		return []models.Book{}, err
@@ -216,4 +192,29 @@ func mergeMaps(firstMap, secondMap map[string]interface{}) {
 			firstMap[key] = value
 		}
 	}
+}
+
+func SyncWithDB(books []models.Book, esClient *elasticsearch.Client) error {
+	var buff bytes.Buffer
+	for _, book := range books {
+		buff.WriteString(fmt.Sprintf(`{"index":{"_index":"%s","_id":"%d"}}%s`, "books", book.Id, "\n"))
+		if err := json.NewEncoder(&buff).Encode(book); err != nil {
+			log.Printf("encode error: %v", err)
+			return err
+		}
+	}
+	// send bulk request for best performance :)
+	bulkRequest := esapi.BulkRequest{
+		Body: &buff,
+	}
+	resp, err := bulkRequest.Do(context.Background(), esClient)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.IsError() {
+		return errors.New("error when inserting: " + resp.Status())
+	}
+	return nil
 }

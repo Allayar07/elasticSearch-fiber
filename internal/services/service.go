@@ -12,6 +12,7 @@ type Books interface {
 	Delete(ids models.DeleteIds) error
 	Update(book models.Book) error
 	GetFormCache(search interface{}) (models.Book, error)
+	Sync() error
 }
 
 type Service struct {

@@ -17,6 +17,54 @@ docker compose up
 ```
 migrate -path ./schema -database 'postgres://postgresql:password0701@localhost:5475/practice?sslmode=disable' up
 ```
+# Create elastic analyzer which latin to russian:
+## URL params:
+* URL ```http://localhost:9200/books```
+* Method ```PUT```
+* Response:
+```
+{
+  "settings": {
+    "analysis": {
+      "filter": {
+        "transliterator": {
+          "type": "icu_transform",
+          "id": "Any-Latin; NFD; [:Nonspacing Mark:] Remove; NFC"
+        }
+      },
+      "analyzer": {
+        "latin_to_russian": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": ["lowercase", "transliterator"]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "description": {
+        "type": "text",
+        "analyzer": "latin_to_russian"
+      },
+			"name": {
+        "type": "text",
+        "analyzer": "latin_to_russian"
+      }
+    }
+  }
+}
+```
+## Success response:
+* Status: ```200```
+* Body:
+```
+{
+	"acknowledged": true,
+	"shards_acknowledged": true,
+	"index": "books"
+}
+```
 ## Ror request:
 ## Endpoint for create
 * Method ```POST```
@@ -106,7 +154,5 @@ migrate -path ./schema -database 'postgres://postgresql:password0701@localhost:5
 
 ```
 
-# For see all data in elasticsearch:
-http://localhost:9200/books/_search?size=100&q=*:*
 
 
