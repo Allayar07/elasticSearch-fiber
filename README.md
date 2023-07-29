@@ -17,7 +17,7 @@ docker compose up
 ```
 migrate -path ./schema -database 'postgres://postgresql:password0701@localhost:5475/practice?sslmode=disable' up
 ```
-# Create elastic analyzer which latin to russian:
+# Create elastic analyzer which when typing with latin result will be russian words(by the it is full text search):
 ## URL params:
 * URL ```http://localhost:9200/books```
 * Method ```PUT```
@@ -65,7 +65,12 @@ migrate -path ./schema -database 'postgres://postgresql:password0701@localhost:5
 	"index": "books"
 }
 ```
-## Ror request:
+# Request endpoints:
+* there are 5 endpoints:
+1. ```/create```
+2. ```/update```
+3. ```/delete```
+4. ```/search```
 ## Endpoint for create
 * Method ```POST```
 
