@@ -24,7 +24,7 @@ func (h *Handler) InitRoutes() *fiber.App {
 
 	app.Post("/create", h.CreateBook)
 	app.Get("/search", h.Search)
-	app.Delete("/delete", h.deleteById)
+	app.Delete("/delete", h.DeleteById)
 	app.Put("/update", h.Update)
 	app.Get("/get", h.GetBook)
 	app.Post("/sync", h.Sync)

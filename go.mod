@@ -6,7 +6,9 @@ require (
 	github.com/confluentinc/confluent-kafka-go/v2 v2.2.0
 	github.com/elastic/go-elasticsearch/v8 v8.8.1
 	github.com/gofiber/fiber/v2 v2.47.0
+	github.com/golang/mock v1.6.0
 	github.com/jackc/pgx/v4 v4.18.1
+	github.com/magiconair/properties v1.8.7
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/spf13/viper v1.16.0
 )
@@ -28,7 +30,6 @@ require (
 	github.com/jackc/pgtype v1.14.0 // indirect
 	github.com/jackc/puddle v1.3.0 // indirect
 	github.com/klauspost/compress v1.16.3 // indirect
-	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect

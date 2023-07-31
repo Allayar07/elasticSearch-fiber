@@ -6,6 +6,8 @@ import (
 	"github.com/elastic/go-elasticsearch/v8"
 )
 
+//go:generate mockgen -source=service.go -destination=mocks/mock.go
+
 type Books interface {
 	CreateBook(book models.Book) (int, error)
 	Search(searchInput string) ([]models.Book, error)
