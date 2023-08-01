@@ -39,16 +39,31 @@ func TestHandler_CreateBook(t *testing.T) {
 			mockBehavior: mockBehavior(func(s *mock_services.MockBooks, book models.Book) {
 				s.EXPECT().CreateBook(book).Return(1, nil)
 			}),
-			expectedStatusCode:   200,
+			expectedStatusCode:   fiber.StatusOK,
 			expectedResponseBody: `{"id":1}`,
 		},
 		{
 			name:                 "bad Request",
 			mockBehavior:         mockBehavior(func(s *mock_services.MockBooks, book models.Book) {}),
-			expectedStatusCode:   400,
+			expectedStatusCode:   fiber.StatusBadRequest,
 			expectedResponseBody: `{"code":400,"message":"Bad Request"}`,
 		},
-		//TODO need implement internal server error case
+		{
+			name:      "internal server error",
+			inputBody: `{"name":"name max character number is 50 but there is more than 50, so it return 500 code","pageCount":300,"author":"docs","description":["текст","Примеры"],"authorEmail":"author.email.com"}`,
+			inputBook: models.Book{
+				Name:        "name max character number is 50 but there is more than 50, so it return 500 code",
+				PageCount:   300,
+				Author:      "docs",
+				Description: []string{"текст", "Примеры"},
+				AuthorEmail: "author.email.com",
+			},
+			mockBehavior: mockBehavior(func(s *mock_services.MockBooks, book models.Book) {
+				s.EXPECT().CreateBook(book).Return(0, errors.New((fiber.ErrInternalServerError).Error()))
+			}),
+			expectedStatusCode:   fiber.StatusInternalServerError,
+			expectedResponseBody: `{"code":500,"message":"Internal Server Error"}`,
+		},
 	}
 
 	for _, test := range testTable {
@@ -102,8 +117,8 @@ func TestHandler_Update(t *testing.T) {
 	}{
 		{
 			name:        "OK",
-			inputString: `{"name":"update name"}`,
-			inputBody:   models.Book{Name: "update name"},
+			inputString: `{"id":1,"name":"update name"}`,
+			inputBody:   models.Book{Id: 1, Name: "update name"},
 			mockBehavior: mockBehavior(func(s *mock_services.MockBooks, book models.Book) {
 				s.EXPECT().Update(book).Return(nil)
 			}),
@@ -115,6 +130,16 @@ func TestHandler_Update(t *testing.T) {
 			mockBehavior:         mockBehavior(func(s *mock_services.MockBooks, book models.Book) {}),
 			expectedStatusCode:   fiber.StatusBadRequest,
 			expectedResponseBody: `{"code":400,"message":"Bad Request"}`,
+		},
+		{
+			name:        "OK",
+			inputString: `{"id":1000,"name":"update name"}`,
+			inputBody:   models.Book{Id: 1000, Name: "update name"},
+			mockBehavior: mockBehavior(func(s *mock_services.MockBooks, book models.Book) {
+				s.EXPECT().Update(book).Return(errors.New((fiber.ErrInternalServerError).Error()))
+			}),
+			expectedStatusCode:   fiber.StatusInternalServerError,
+			expectedResponseBody: `{"code":500,"message":"Internal Server Error"}`,
 		},
 	}
 
@@ -184,6 +209,16 @@ func TestHandler_DeleteById(t *testing.T) {
 			mockBehavior:         mockBehavior(func(s *mock_services.MockBooks, ids models.DeleteIds) {}),
 			expectedStatusCode:   fiber.StatusBadRequest,
 			expectedResponseBody: `{"code":400,"message":"Bad Request"}`,
+		},
+		{
+			name:        "internal server error",
+			inputString: `{"ids":[]}`,
+			inputIds:    models.DeleteIds{Ids: []int{}},
+			mockBehavior: mockBehavior(func(s *mock_services.MockBooks, ids models.DeleteIds) {
+				s.EXPECT().Delete(ids).Return(errors.New((fiber.ErrInternalServerError).Error()))
+			}),
+			expectedStatusCode:   fiber.StatusInternalServerError,
+			expectedResponseBody: `{"code":500,"message":"Internal Server Error"}`,
 		},
 	}
 

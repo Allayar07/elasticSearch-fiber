@@ -38,37 +38,37 @@ func (r *BooksRepo) DeleteBooks(input models.DeleteIds) error {
 	return nil
 }
 func (r *BooksRepo) UpdateBook(book models.Book) error {
-	setValue := make([]string, 0)
+	setValues := make([]string, 0)
 	arguments := make([]interface{}, 0)
-	argId := 1
+	argumentId := 1
 	if book.Name != "" {
-		setValue = append(setValue, fmt.Sprintf("name=$%d", argId))
+		setValues = append(setValues, fmt.Sprintf("name=$%d", argumentId))
 		arguments = append(arguments, book.Name)
-		argId++
+		argumentId++
 	}
 	if book.PageCount != 0 {
-		setValue = append(setValue, fmt.Sprintf("page_count=$%d", argId))
+		setValues = append(setValues, fmt.Sprintf("page_count=$%d", argumentId))
 		arguments = append(arguments, book.PageCount)
-		argId++
+		argumentId++
 	}
 	if book.Author != "" {
-		setValue = append(setValue, fmt.Sprintf("author=$%d", argId))
+		setValues = append(setValues, fmt.Sprintf("author=$%d", argumentId))
 		arguments = append(arguments, book.Author)
-		argId++
+		argumentId++
 	}
 	if book.AuthorEmail != "" {
-		setValue = append(setValue, fmt.Sprintf("author_email=$%d", argId))
+		setValues = append(setValues, fmt.Sprintf("author_email=$%d", argumentId))
 		arguments = append(arguments, book.AuthorEmail)
-		argId++
+		argumentId++
 	}
 	if book.Description != nil {
-		setValue = append(setValue, fmt.Sprintf("description=$%d", argId))
+		setValues = append(setValues, fmt.Sprintf("description=$%d", argumentId))
 		arguments = append(arguments, book.Description)
-		argId++
+		argumentId++
 	}
 	arguments = append(arguments, book.Id)
-	updateValues := strings.Join(setValue, ",")
-	query := fmt.Sprintf(`UPDATE %s SET %s WHERE id = $%d `, "books", updateValues, argId)
+	updateValues := strings.Join(setValues, ",")
+	query := fmt.Sprintf(`UPDATE %s SET %s WHERE id = $%d `, "books", updateValues, argumentId)
 	tag, err := r.db.Exec(context.Background(), query, arguments...)
 	if err != nil {
 		return err
